@@ -128,10 +128,36 @@ const Radar = function (size, radar) {
       .attr('transform', 'scale(' + (22 / 64) + ') translate(' + (-404 + x * (64 / 22) - 17) + ', ' + (-282 + y * (64 / 22) - 17) + ')');
   }
 
-  function addRing(ring, order) {
+  function addRing(ring, order, description) {
     var table = d3.select('.quadrant-table.' + order);
-    table.append('h3').text(ring);
+    showRingDescription(ring, table, description);
     return table.append('ul');
+  }
+
+  function showRingDescription(ring, table, description){
+    table.append('h3').style('display','inline').html(ring);
+    var blipListItem = table
+      .insert("span")
+      .attr('class', 'tooltip-icon')
+      .text('?');
+
+    var clickBlip = function () {
+      tip.hide().style('left', 0).style('top', 0);      
+      tip.show(description)
+      	.style('top', blipListItem.attr('cy') + 'px')
+	      .style('left', blipListItem.attr('cx')  + 'px');
+    
+      //  .direction("n")
+       //.offset([10, -10])
+      //  .style('right', blipListItem.attr("cx"))
+      //  .style('top', blipListItem.attr("cy"));
+
+      // blipListItem.on('click', function () {
+      //   d3.event.stopPropagation();
+      // });
+    };
+
+    blipListItem.on('click', clickBlip);
   }
 
   function calculateBlipCoordinates(blip, chance, minRadius, maxRadius, startAngle) {
@@ -190,7 +216,8 @@ const Radar = function (size, radar) {
       }, 0);
       var chance = new Chance(Math.PI * sumRing * ring.name().length * sumQuadrant * quadrant.name().length);
 
-      var ringList = addRing(ring.name(), order);
+      var ringList = addRing(ring.name(), order, ring.description);
+
       var allBlipCoordinatesInRing = [];
 
       ringBlips.forEach(function (blip) {

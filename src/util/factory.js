@@ -59,14 +59,18 @@ const GoogleSheet = function (sheetReference, sheetName) {
                 .append('p')
                 .html(message);
         }
+        function loadRingDescription(tabletop){
+            var ringDescriptionSheetName=tabletop.foundSheetNames[1];
+            return tabletop.sheets(ringDescriptionSheetName).all();
+        }
 
         function createRadar(__, tabletop) {
 
             try {
-
                 if (!sheetName) {
                     sheetName = tabletop.foundSheetNames[0];
                 }
+                var allRingsAndDescriptions = loadRingDescription(tabletop);                                
                 var columnNames = tabletop.sheets(sheetName).columnNames;
 
                 var contentValidator = new ContentValidator(columnNames);
@@ -88,7 +92,9 @@ const GoogleSheet = function (sheetReference, sheetName) {
                         throw new MalformedDataError(ExceptionMessages.TOO_MANY_RINGS);
                     }
                     ringMap[ringName] = new Ring(ringName, i);
+                    allRingsAndDescriptions.forEach( x => { if(x.ringName === ringName) { ringMap[ringName].description  = x.ringDescription; } } )
                 });
+
 
                 var quadrants = {};
                 _.each(blips, function (blip) {
